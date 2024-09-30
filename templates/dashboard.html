@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/style.css">
+    <title>Student Dashboard</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+            <studentRequest>
+                <matric_no>{{ student['matric_no'] }}</matric_no>
+            </studentRequest>`;
+
+            // Fetch student XML data on page load
+            fetch('/get_student_xml', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/xml',
+                    'Accept': 'application/xml'
+                },
+                body: xmlData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('xmlData').textContent = data; // Display XML response
+            })
+            .catch(error => console.error('Error fetching XML:', error));
+
+            // Function to check tuition fee
+            document.getElementById('checkFeeButton').addEventListener('click', function() {
+                fetch('/check_tuition_fee', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/xml',
+                        'Accept': 'application/xml'
+                    },
+                    body: xmlData // Send the same XML data
+                })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('tuitionResponse').textContent = data; // Display tuition response
+                })
+                .catch(error => console.error('Error checking tuition fee:', error));
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome, {{ student['name'] }}</h1>
+            <img src="{{ url_for('static', filename='uploads/' + student['picture']) }}" alt="Profile Picture" class="profile-pic">
+            <a href="/logout" class="logout-button">Logout</a>
+        </header>
+        <main>
+            <h2>Student's Details</h2>
+            <pre id="xmlData" class="xml-output"></pre>
+            
+            <!-- Button to check tuition fee -->
+            <button id="checkFeeButton" class="action-button">Check Tuition Fee</button>
+            <h2>Tuition Fee</h2>
+            <pre id="tuitionResponse" class="xml-output"></pre>
+        </main>
+    </div>
+</body>
+</html>
